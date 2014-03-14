@@ -7,7 +7,7 @@ lilRPG.world = function (spec) {
 
         spec.tiles = [];
 
-        for (y = 0; y < spec.height; y++) {
+        /*for (y = 0; y < spec.height; y++) {
             spec.tiles.push([]);
             for (x = 0; x < spec.width; x++) {
                 spec.tiles[y].push(lilRPG.tile({})
@@ -16,6 +16,29 @@ lilRPG.world = function (spec) {
                                        .setBackground('#8595a1')
                                        .setPosition(x, y)
                                        .makeSolid());
+            }
+        }*/
+
+        for (y = 0; y < spec.height; y++) {
+            spec.tiles.push([]);
+            for (x = 0; x < spec.width; x++) {
+                if (x == 0 ||
+                    y == 0 ||
+                    x == spec.width - 1 ||
+                    y == spec.height - 1) {
+                    spec.tiles[y].push(lilRPG.tile({})
+                                           .setCharacter('#')
+                                           .setColor('#8595a1')
+                                           .setBackground('#8595a1')
+                                           .setPosition(x, y)
+                                           .makeSolid());
+                } else {
+                    spec.tiles[y].push(lilRPG.tile({})
+                                           .setCharacter('.')
+                                           .setColor('#d2aa99')
+                                           .setBackground('#4e4a4e')
+                                           .setPosition(x, y));
+                }
             }
         }
     }
@@ -42,6 +65,119 @@ lilRPG.world = function (spec) {
 
     that.addEntity = function (entity) {
         this.entities.push(entity);
+        return this;
+    };
+
+    
+
+    that.placeWall = function (x, y) {
+        var tile = spec.tiles[y][x];
+        tile.setCharacter('#')
+            .setColor('#8595a1')
+            .setBackground('#8595a1')
+            .makeSolid();
+    };
+
+    that.placeFloor = function (x, y) {
+        var tile = spec.tiles[y][x];
+        tile.setCharacter('.')
+            .setColor('#d2aa99')
+            .setBackground('#4e4a4e')
+            .makeNotSolid();
+    };
+
+    that.placeDoor = function (x, y) {
+        var tile = spec.tiles[y][x];
+        tile.setCharacter('+')
+            .setColor('#854c30')
+            .setBackground('#442434')
+            .makeNotSolid();
+    };
+
+    that.generateNormalDungeon = function () {
+        var doorX,
+            doorY,
+            door,
+            i,
+            chance;
+
+        function randomOddBetween(min, max) {
+            var result;
+            while (result % 2 !== 1) {
+                result = Math.floor(Math.random() * (max - min + 1) + min);
+            }
+            return result;
+        }
+
+        function randomEvenBetween(min, max) {
+            var result;
+            while (result % 2 !== 0) {
+                result = Math.floor(Math.random() * (max - min + 1) + min);
+            }
+            return result;
+        }
+
+        function extend(x, y, delta) {
+            var tile = spec.tiles[y + delta.y][x + delta.x];
+
+            if (tile.isSolid()) {
+                return;
+            } else {
+                tile.setCharacter('#')
+                    .setColor('#8595a1')
+                    .setBackground('#8595a1')
+                    .makeSolid();
+                extend(tile.getX(), tile.getY(), delta);
+            }
+        }
+
+        doorX = randomEvenBetween(2, (spec.width / 2) - 1);
+        doorY = randomEvenBetween(2, spec.height - 1);
+
+        this.placeDoor(doorX, doorY);
+
+        extend(doorX, doorY, {x: 0, y: -1});
+        extend(doorX, doorY, {x: 0, y: 1});
+
+        doorX = randomEvenBetween((spec.width / 2), spec.width - 2);
+        doorY = randomEvenBetween(2, spec.height - 2);
+
+        this.placeDoor(doorX, doorY);
+
+        extend(doorX, doorY, {x: 0, y: -1});
+        extend(doorX, doorY, {x: 0, y: 1});
+
+        for (i = 0; i < 3; i++) {
+            doorX = randomOddBetween(2, spec.width - 2);
+            doorY = randomOddBetween(2, spec.height - 2);
+
+            this.placeDoor(doorX, doorY);
+
+            extend(doorX, doorY, {x: 1, y: 0});
+            extend(doorX, doorY, {x: -1, y:0});
+        }
+
+        for (i = 0; i < 5; i++) {
+            chance = Math.random();
+            if (chance < 1 / 3) {
+                doorX = randomOddBetween(2, spec.width - 2);
+                doorY = randomOddBetween(2, spec.height - 2);
+            } else {
+                doorX = randomEvenBetween(2, spec.width - 2);
+                doorY = randomEvenBetween(2, spec.height - 2);
+            }
+
+            this.placeDoor(doorX, doorY);
+
+            if (chance < 1 / 3) {
+                extend(doorX, doorY, {x: 1, y: 0});
+                extend(doorX, doorY, {x: -1, y: 0});
+            } else {
+                extend(doorX, doorY, {x: 0, y: 1});
+                extend(doorX, doorY, {x: 0, y: -1});
+            }
+        }
+
         return this;
     };
 
@@ -108,6 +244,6 @@ lilRPG.world = function (spec) {
             }
         }
     };
-
+    
     return that;
 };

@@ -8,7 +8,8 @@ window.onload = function () {
         display = lilRPG.display({width: 80, height: 24}),
 
         world = lilRPG.world({})
-                    .drunkardWalk(.60),
+                    //.drunkardWalk(.60),
+                    .generateNormalDungeon(),
         
         startTile = world.getEmptyTile(),
 
@@ -19,10 +20,21 @@ window.onload = function () {
 
     world.addEntity(guy);
 
+    //world.updateFOV(guy.getX(), guy.getY(), 2);
+
     function drawTile(tile) {
+        var color,
+            background;
+        //if (tile.getVisibility() === lilRPG.visibility.lit) {
+            color = tile.getColor();
+            background = tile.getBackground();
+        //} else {
+        //    color = '#000000';
+        //    background = '#000000';
+        //}
         display.draw(tile.getCharacter(),
-                     tile.getColor(),
-                     tile.getBackground(),
+                     color,
+                     background,
                      tile.getX(),
                      tile.getY());
     }

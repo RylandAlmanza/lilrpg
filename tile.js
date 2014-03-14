@@ -1,5 +1,12 @@
+lilRPG.visibility = {
+    undiscovered: 1,
+    discovered: 2,
+    lit: 3
+};
+
 lilRPG.tile = function (spec) {
     spec.isSolid = spec.isSolid || false;
+    spec.visibility = spec.visibility || lilRPG.visibility.undiscovered;
 
     var that = lilRPG.entity(spec);
 
@@ -18,6 +25,20 @@ lilRPG.tile = function (spec) {
 
     that.makeSolid = function () {
         spec.isSolid = true;
+        return this;
+    };
+
+    that.makeNotSolid = function () {
+        spec.isSolid = false;
+        return this;
+    };
+
+    that.getVisibility = function () {
+        return spec.visibility;
+    };
+
+    that.setVisibility = function (visibility) {
+        spec.visibility = visibility;
         return this;
     };
 
