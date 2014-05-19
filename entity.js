@@ -64,7 +64,7 @@ lilRPG.entity = (function () {
             return this;
         };
 
-        lilRPG.enableEventsOn(that);
+        //lilRPG.enableEventsOn(that);
 
         return that;
     };
